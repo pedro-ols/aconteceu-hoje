@@ -7,7 +7,8 @@ import {
   ActivityIndicator, 
   RefreshControl,
   Platform,
-  Image
+  Image,
+  Dimensions
 } from "react-native";
 import { useAuth } from "../../contexts/AuthContext";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -103,9 +104,32 @@ export default function ListScreen() {
     return emotionColors[emotion?.toLowerCase()] || '#757575';
   };
 
+  // Criar estilos dinâmicos baseados no tamanho da tela
+  const dynamicStyles = StyleSheet.create({
+    logoSize: {
+      width: isTablet ? 280 : 200,
+      height: isTablet ? 210 : 150,
+    },
+    headerPadding: {
+      paddingVertical: isTablet ? 40 : 30,
+      paddingHorizontal: isTablet ? 40 : 20,
+    },
+    entriesContainer: {
+      paddingHorizontal: isLargeScreen ? screenWidth * 0.15 : isTablet ? 30 : 15,
+      paddingBottom: 30,
+      paddingTop: 10,
+    },
+    diaryPagePadding: {
+      padding: isTablet ? 30 : 20,
+      marginBottom: isTablet ? 30 : 20,
+    },
+  });
+
+  const maxWordsPerLine = isLargeScreen ? 12 : isTablet ? 10 : 8;
+
   // Renderiza cada entrada do diário
   const renderDiaryEntry = (entry, index) => (
-    <View key={entry.id || index} style={styles.diaryPage}>
+    <View key={entry.id || index} style={[styles.diaryPage, dynamicStyles.diaryPagePadding]}>
       {/* Header da página do diário */}
       <View style={styles.pageHeader}>
         <View style={styles.dateField}>
@@ -134,7 +158,7 @@ export default function ListScreen() {
           const words = entry.content.split(' ');
           const lines = [];
           let currentLine = '';
-          const maxWordsPerLine = 8; // Aproximadamente 8-10 palavras por linha
+          const maxWordsPerLine = isLargeScreen ? 12 : isTablet ? 10 : 8; // Usar valor responsivo
           
           words.forEach((word, index) => {
             if (currentLine.split(' ').length < maxWordsPerLine) {
@@ -162,7 +186,8 @@ export default function ListScreen() {
         
         {/* Linhas extras vazias para completar o visual */}
         {(() => {
-          const textLines = Math.ceil(entry.content.split(' ').length / 8);
+          const maxWordsPerLineLocal = isLargeScreen ? 12 : isTablet ? 10 : 8;
+          const textLines = Math.ceil(entry.content.split(' ').length / maxWordsPerLineLocal);
           const emptyLines = Math.max(0, 8 - textLines);
           
           return Array.from({ length: emptyLines }).map((_, emptyIndex) => (
@@ -196,13 +221,13 @@ export default function ListScreen() {
         <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
       }
     >
-      <View style={styles.header}>
+      <View style={[styles.header, dynamicStyles.headerPadding]}>
         <View style={styles.logoContainer}>
           {/* Você pode substituir este View por uma Image quando tiver a logo salva */}
           <View style={styles.logoPlaceholder}>
           <Image 
             source={require('../../assets/images/logo.png')} 
-            style={styles.logo}
+            style={[styles.logo, dynamicStyles.logoSize]}
           />
          
           </View>
@@ -211,7 +236,7 @@ export default function ListScreen() {
         <Text style={styles.userName}>{user?.name}</Text>
       </View>
 
-      <View style={styles.entriesList}>
+      <View style={[styles.entriesList, dynamicStyles.entriesContainer]}>
         {diaryEntries.length > 0 ? (
           diaryEntries.map((entry, index) => renderDiaryEntry(entry, index))
         ) : (
@@ -227,6 +252,11 @@ export default function ListScreen() {
     </ScrollView>
   );
 }
+
+// Obter dimensões da tela para responsividade
+const { width: screenWidth } = Dimensions.get('window');
+const isTablet = screenWidth >= 768;
+const isLargeScreen = screenWidth >= 1024;
 
 const styles = StyleSheet.create({
   container: {
@@ -248,9 +278,7 @@ const styles = StyleSheet.create({
     color: "#434440",
   },
   header: {
-    backgroundColor: "#434440",
-    paddingVertical: 30,
-    paddingHorizontal: 20,
+    backgroundColor: "#82837fff",
     borderBottomLeftRadius: 25,
     borderBottomRightRadius: 25,
     marginBottom: 20,
@@ -265,7 +293,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   bookIcon: {
-    backgroundColor: "rgba(255,255,255,0.1)",
+    backgroundColor: "rgba(83, 73, 73, 0.1)",
     borderRadius: 25,
     width: 50,
     height: 50,
@@ -290,8 +318,7 @@ const styles = StyleSheet.create({
     letterSpacing: 1,
   },
   logo: {
-    width: 200,
-    height: 150,
+    // Dimensões são definidas dinamicamente
   },
   title: {
     fontSize: 28,
@@ -307,21 +334,17 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   userName: {
-    fontSize: 18,
+    fontSize: isTablet ? 22 : 18,
     color: "#fff",
     fontWeight: "600",
     textAlign: "center",
   },
   entriesList: {
-    paddingHorizontal: 15,
-    paddingBottom: 30,
-    paddingTop: 10,
+    // Padding é definido dinamicamente
   },
   diaryPage: {
     backgroundColor: "#fafafa",
     borderRadius: 8,
-    padding: 20,
-    marginBottom: 20,
     shadowColor: "#434440",
     shadowOffset: {
       width: 2,
@@ -332,6 +355,7 @@ const styles = StyleSheet.create({
     elevation: 5,
     borderWidth: 1,
     borderColor: "#494a44",
+    // Padding e margin são definidos dinamicamente
   },
   pageHeader: {
     flexDirection: "row",
@@ -383,7 +407,7 @@ const styles = StyleSheet.create({
     paddingBottom: 5,
   },
   titleText: {
-    fontSize: 18,
+    fontSize: isTablet ? 22 : 18,
     fontWeight: "bold",
     color: "#2c2c2a",
     textAlign: "center",
@@ -407,9 +431,9 @@ const styles = StyleSheet.create({
   },
   lineText: {
     flex: 1,
-    fontSize: 15,
+    fontSize: isTablet ? 17 : 15,
     color: "#2c2c2a",
-    lineHeight: 22,
+    lineHeight: isTablet ? 26 : 22,
     fontFamily: Platform.OS === 'ios' ? 'Georgia' : 'serif',
   },
   underline: {
