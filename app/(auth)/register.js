@@ -143,5 +143,66 @@ export default function RegisterScreen() {
 }
 
 const styles = StyleSheet.create({
-  
+  container: {
+    flex: 1,
+    backgroundColor: "#f5f5f5",
+  },
+  scrollContent: {
+    flexGrow: 1,
+  },
+  content: {
+    flex: 1,
+    justifyContent: "center",
+    padding: 20,
+  },
+  emoji: {
+    fontSize: 64,
+    textAlign: "center",
+    marginBottom: 20,
+  },
+  title: {
+    fontSize: 28,
+    fontWeight: "bold",
+    textAlign: "center",
+    marginBottom: 8,
+    color: "#333",
+  },
+  subtitle: {
+    fontSize: 16,
+    textAlign: "center",
+    marginBottom: 30,
+    color: "#666",
+  },
+  input: {
+    backgroundColor: "#fff",
+    borderRadius: 8,
+    padding: 15,
+    marginBottom: 15,
+    fontSize: 16,
+    borderWidth: 1,
+    borderColor: "#ddd",
+  },
+  button: {
+    backgroundColor: "#007AFF",
+    borderRadius: 8,
+    padding: 15,
+    alignItems: "center",
+    marginTop: 10,
+  },
+  buttonDisabled: {
+    backgroundColor: "#999",
+  },
+  buttonText: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "600",
+  },
+  backButton: {
+    marginTop: 20,
+    alignItems: "center",
+  },
+  backText: {
+    color: "#007AFF",
+    fontSize: 16,
+  },
 });
