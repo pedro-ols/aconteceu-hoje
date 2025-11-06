@@ -8,17 +8,22 @@ import {
   RefreshControl,
   Platform,
   Image,
-  Dimensions
+  Dimensions,
+  ImageBackground
 } from "react-native";
 import { useAuth } from "../../contexts/AuthContext";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { createDiaryEntryTemplate, loadDiaryEntries as loadEntries } from "../../utils/diaryTemplate";
+import { useFocusEffect } from '@react-navigation/native';
+import { useCallback } from 'react';
 
 export default function ListScreen() {
   const { user } = useAuth();
   const [diaryEntries, setDiaryEntries] = useState([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+
+  const imagemDeFundo = require('../../assets/images/diary-background.png');
 
   // Função para carregar entradas do diário do AsyncStorage
   const loadDiaryEntries = async () => {
@@ -76,6 +81,15 @@ export default function ListScreen() {
     
     initializeDiary();
   }, [user]);
+
+  // Recarrega as entradas sempre que a tela receber foco
+  useFocusEffect(
+    useCallback(() => {
+      if (user?.email) {
+        loadDiaryEntries();
+      }
+    }, [user])
+  );
 
   // Função para formatar a data
   const formatDate = (dateString) => {
@@ -151,55 +165,16 @@ export default function ListScreen() {
         </View>
       )}
 
-      {/* Linhas do diário com o texto */}
-      <View style={styles.linesContainer}>
-        {(() => {
-          // Divide o texto em palavras e distribui nas linhas
-          const words = entry.content.split(' ');
-          const lines = [];
-          let currentLine = '';
-          const maxWordsPerLine = isLargeScreen ? 12 : isTablet ? 10 : 8; // Usar valor responsivo
-          
-          words.forEach((word, index) => {
-            if (currentLine.split(' ').length < maxWordsPerLine) {
-              currentLine += (currentLine ? ' ' : '') + word;
-            } else {
-              lines.push(currentLine);
-              currentLine = word;
-            }
-          });
-          
-          // Adiciona a última linha se houver conteúdo
-          if (currentLine) {
-            lines.push(currentLine);
-          }
-          
-          // Renderiza as linhas com texto
-          return lines.map((line, lineIndex) => (
-            <View key={lineIndex} style={styles.diaryLine}>
-              <View style={styles.bulletPoint} />
-              <Text style={styles.lineText}>{line}</Text>
-              <View style={styles.underline} />
-            </View>
-          ));
-        })()}
-        
-        {/* Linhas extras vazias para completar o visual */}
-        {(() => {
-          const maxWordsPerLineLocal = isLargeScreen ? 12 : isTablet ? 10 : 8;
-          const textLines = Math.ceil(entry.content.split(' ').length / maxWordsPerLineLocal);
-          const emptyLines = Math.max(0, 8 - textLines);
-          
-          return Array.from({ length: emptyLines }).map((_, emptyIndex) => (
-            <View key={`empty-${emptyIndex}`} style={styles.diaryLine}>
-              <View style={styles.bulletPoint} />
-              <Text style={styles.lineText}></Text>
-              <View style={styles.underline} />
-            </View>
-          ));
-        })()}
-      </View>
-    </View>
+      <ImageBackground 
+        source={imagemDeFundo}
+        style={styles.contentContainer}
+        resizeMode="cover"
+      >
+        <Text style={styles.contentText} numberOfLines={0}>
+          {entry.content}
+        </Text>
+      </ImageBackground>
+    </View> // Esta é a </View> externa que já estava no seu código
   );
 
   if (loading) {
@@ -402,9 +377,9 @@ const styles = StyleSheet.create({
   },
   titleSection: {
     marginBottom: 15,
-    borderBottomWidth: 1,
+    borderBottomWidth: 2,
     borderBottomColor: "#494a44",
-    paddingBottom: 5,
+    paddingBottom: 10,
   },
   titleText: {
     fontSize: isTablet ? 22 : 18,
@@ -412,38 +387,20 @@ const styles = StyleSheet.create({
     color: "#2c2c2a",
     textAlign: "center",
   },
-  linesContainer: {
-    marginBottom: 15,
+  contentContainer: {
+    backgroundColor: "#ffffff",
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: "#e0e0e0",
+    width: '100%',
+    height: '14rem',
   },
-  diaryLine: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: 8,
-    minHeight: 24,
-  },
-  bulletPoint: {
-    width: 6,
-    height: 6,
-    borderRadius: 3,
-    backgroundColor: "#494a44",
-    marginRight: 12,
-    marginTop: 2,
-  },
-  lineText: {
-    flex: 1,
+  contentText: {
     fontSize: isTablet ? 17 : 15,
     color: "#2c2c2a",
-    lineHeight: isTablet ? 26 : 22,
+    lineHeight: isTablet ? 13 : 20,
+    textAlign: "justify",
     fontFamily: Platform.OS === 'ios' ? 'Georgia' : 'serif',
-  },
-  underline: {
-    position: "absolute",
-    bottom: 0,
-    left: 18,
-    right: 0,
-    height: 1,
-    backgroundColor: "#494a44",
-    opacity: 0.4,
   },
   noEntriesContainer: {
     alignItems: "center",
