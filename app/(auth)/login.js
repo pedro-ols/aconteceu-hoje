@@ -100,5 +100,75 @@ export default function LoginScreen() {
 }
 
 const styles = StyleSheet.create({
-  
+  container: {
+    flex: 1,
+    backgroundColor: "#f5f5f5",
+  },
+  content: {
+    flex: 1,
+    justifyContent: "center",
+    padding: 20,
+  },
+  emoji: {
+    fontSize: 64,
+    textAlign: "center",
+    marginBottom: 20,
+  },
+  title: {
+    fontSize: 28,
+    fontWeight: "bold",
+    textAlign: "center",
+    marginBottom: 8,
+    color: "#333",
+  },
+  subtitle: {
+    fontSize: 16,
+    textAlign: "center",
+    marginBottom: 30,
+    color: "#666",
+  },
+  input: {
+    backgroundColor: "#fff",
+    borderRadius: 8,
+    padding: 15,
+    marginBottom: 15,
+    fontSize: 16,
+    borderWidth: 1,
+    borderColor: "#ddd",
+  },
+  button: {
+    backgroundColor: "#007AFF",
+    borderRadius: 8,
+    padding: 15,
+    alignItems: "center",
+    marginTop: 10,
+  },
+  buttonDisabled: {
+    backgroundColor: "#999",
+  },
+  buttonText: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "600",
+  },
+  registerContainer: {
+    flexDirection: "row",
+    justifyContent: "center",
+    marginTop: 20,
+  },
+  registerText: {
+    fontSize: 16,
+    color: "#666",
+  },
+  registerLink: {
+    fontSize: 16,
+    color: "#007AFF",
+    fontWeight: "600",
+  },
+  infoText: {
+    textAlign: "center",
+    marginTop: 20,
+    fontSize: 14,
+    color: "#666",
+  },
 });
