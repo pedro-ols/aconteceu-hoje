@@ -14,6 +14,7 @@ import {
 import { useAuth } from "../../contexts/AuthContext";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Ionicons } from "@expo/vector-icons";
+import { useFocusEffect } from "@react-navigation/native";
 
 export default function ProfileScreen() {
   const { user, signOut, updateUser } = useAuth();
@@ -24,6 +25,8 @@ export default function ProfileScreen() {
     lastEntry: null,
   });
   const [isEditModalVisible, setIsEditModalVisible] = useState(false);
+  const [isDeleteModalVisible, setIsDeleteModalVisible] = useState(false);
+  const [deletePassword, setDeletePassword] = useState("");
   const [editedName, setEditedName] = useState("");
   const [editedEmail, setEditedEmail] = useState("");
   const [editedPassword, setEditedPassword] = useState("");
@@ -32,35 +35,60 @@ export default function ProfileScreen() {
 
   // Carrega estatísticas do usuário
   useEffect(() => {
-    loadUserStats();
+    if (user?.email) {
+      loadUserStats();
+    }
   }, [user]);
+
+  // Atualiza estatísticas automaticamente quando a tela ganha foco
+  useFocusEffect(
+    React.useCallback(() => {
+      if (user?.email) {
+        loadUserStats();
+      }
+    }, [])
+  );
 
   const loadUserStats = async () => {
     try {
       if (user?.email) {
         // Carregar entradas do diário
-        const entriesData = await AsyncStorage.getItem(
-          `diary_entries_${user.email}`
-        );
+        const storageKey = `diary_entries_${user.email}`;
+        const entriesData = await AsyncStorage.getItem(storageKey);
         const entries = entriesData ? JSON.parse(entriesData) : [];
+
+        console.log("=== ESTATÍSTICAS DO PERFIL ===");
+        console.log("Chave de busca:", storageKey);
+        console.log("Total de entradas encontradas:", entries.length);
+        console.log("Entradas:", entries);
 
         // Calcular estatísticas
         const totalEntries = entries.length;
 
-        // Emoção mais frequente
+        // Mapeamento das emoções válidas
+        const validEmotions = [
+          "feliz", "triste", "ansioso", "calmo", 
+          "irritado", "esperançoso", "nostálgico", "energético"
+        ];
+
+        // Emoção mais frequente (apenas emoções válidas)
         const emotions = entries
           .map((entry) => entry.emotion)
-          .filter((emotion) => emotion);
+          .filter((emotion) => emotion && validEmotions.includes(emotion));
+        
         const emotionCount = {};
         emotions.forEach((emotion) => {
           emotionCount[emotion] = (emotionCount[emotion] || 0) + 1;
         });
-        const favoriteEmotion =
-          Object.keys(emotionCount).length > 0
-            ? Object.keys(emotionCount).reduce((a, b) =>
-                emotionCount[a] > emotionCount[b] ? a : b
-              )
-            : "-";
+        
+        let favoriteEmotion = "-";
+        if (Object.keys(emotionCount).length > 0) {
+          favoriteEmotion = Object.keys(emotionCount).reduce((a, b) =>
+            emotionCount[a] > emotionCount[b] ? a : b
+          );
+          // Capitalizar primeira letra
+          favoriteEmotion = favoriteEmotion.charAt(0).toUpperCase() + favoriteEmotion.slice(1);
+        }
 
         // Dias ativos (diferentes datas de entrada)
         const uniqueDates = new Set(
@@ -183,10 +211,8 @@ export default function ProfileScreen() {
         updateUser(userWithoutPassword);
       }
       
-      // Recarregar estatísticas se mudou o email
-      if (editedEmail !== user.email) {
-        await loadUserStats();
-      }
+      // Recarregar estatísticas após salvar
+      await loadUserStats();
       
       setIsEditModalVisible(false);
       Alert.alert("Sucesso", "Perfil atualizado com sucesso!");
@@ -207,7 +233,7 @@ export default function ProfileScreen() {
     ]);
   };
 
-  const handleClearData = () => {
+  const handleClearData = async () => {
     Alert.alert(
       "Limpar dados",
       "Isso irá apagar todas as suas entradas do diário. Esta ação não pode ser desfeita!",
@@ -221,15 +247,21 @@ export default function ProfileScreen() {
           style: "destructive",
           onPress: async () => {
             try {
-              await AsyncStorage.removeItem(`diary_entries_${user.email}`);
-              setStats({
-                totalEntries: 0,
-                favoriteEmotion: "-",
-                daysActive: 0,
-                lastEntry: null,
-              });
-              Alert.alert("Sucesso", "Dados limpos com sucesso!");
+              const storageKey = `diary_entries_${user.email}`;
+              console.log("Removendo dados da chave:", storageKey);
+              
+              await AsyncStorage.removeItem(storageKey);
+              
+              // Verificar se foi removido
+              const check = await AsyncStorage.getItem(storageKey);
+              console.log("Verificação após remoção:", check);
+              
+              // Recarregar estatísticas após limpar
+              await loadUserStats();
+              
+              Alert.alert("Sucesso", "Todos os dados do diário foram apagados!");
             } catch (error) {
+              console.error("Erro ao limpar dados:", error);
               Alert.alert("Erro", "Não foi possível limpar os dados.");
             }
           },
@@ -237,6 +269,108 @@ export default function ProfileScreen() {
       ],
       { cancelable: true }
     );
+  };
+
+  const handleDeleteAccount = () => {
+    setDeletePassword("");
+    setIsDeleteModalVisible(true);
+  };
+
+  const confirmDeleteAccount = async () => {
+    if (!deletePassword.trim()) {
+      Alert.alert("Erro", "Por favor, digite sua senha para confirmar.");
+      return;
+    }
+
+    try {
+      // Buscar usuário atual do AsyncStorage
+      const currentUserData = await AsyncStorage.getItem("@rotas_privadas:user");
+      if (!currentUserData) {
+        Alert.alert("Erro", "Não foi possível encontrar os dados do usuário.");
+        return;
+      }
+      
+      const loggedUser = JSON.parse(currentUserData);
+      
+      // Buscar lista de todos os usuários (tentando ambas as chaves)
+      let usersData = await AsyncStorage.getItem("@rotas_privadas:users_db");
+      let users = usersData ? JSON.parse(usersData) : [];
+      
+      // Se não encontrar, tentar a chave alternativa
+      if (users.length === 0) {
+        usersData = await AsyncStorage.getItem("users");
+        users = usersData ? JSON.parse(usersData) : [];
+      }
+      
+      // Encontrar o usuário completo com senha
+      const userWithPassword = users.find((u) => u.email === loggedUser.email);
+      
+      if (!userWithPassword) {
+        Alert.alert("Erro", "Usuário não encontrado na base de dados.");
+        return;
+      }
+
+      // Verificar se a senha está correta
+      if (userWithPassword.password !== deletePassword.trim()) {
+        Alert.alert("Erro", "Senha incorreta. Tente novamente.");
+        return;
+      }
+
+      // Confirmar exclusão final
+      Alert.alert(
+        "⚠️ Confirmar Exclusão",
+        "Sua conta e todos os seus dados serão permanentemente excluídos. Esta ação não pode ser desfeita!",
+        [
+          {
+            text: "Cancelar",
+            style: "cancel",
+          },
+          {
+            text: "Excluir Conta",
+            style: "destructive",
+            onPress: async () => {
+              try {
+                // Remover usuário da lista (atualizar ambas as chaves se existirem)
+                const updatedUsers = users.filter((u) => u.email !== loggedUser.email);
+                
+                // Atualizar na chave correta
+                if (await AsyncStorage.getItem("@rotas_privadas:users_db")) {
+                  await AsyncStorage.setItem("@rotas_privadas:users_db", JSON.stringify(updatedUsers));
+                }
+                if (await AsyncStorage.getItem("users")) {
+                  await AsyncStorage.setItem("users", JSON.stringify(updatedUsers));
+                }
+                
+                // Remover entradas do diário
+                await AsyncStorage.removeItem(`diary_entries_${loggedUser.email}`);
+                
+                // Remover usuário atual
+                await AsyncStorage.removeItem("@rotas_privadas:user");
+                
+                setIsDeleteModalVisible(false);
+                
+                Alert.alert(
+                  "Conta Excluída",
+                  "Sua conta foi excluída com sucesso.",
+                  [
+                    {
+                      text: "OK",
+                      onPress: () => signOut(),
+                    },
+                  ]
+                );
+              } catch (error) {
+                console.error("Erro ao excluir conta:", error);
+                Alert.alert("Erro", "Não foi possível excluir a conta.");
+              }
+            },
+          },
+        ]
+      );
+    } catch (error) {
+      console.error("Erro ao verificar senha:", error);
+      Alert.alert("Erro", "Não foi possível verificar a senha.");
+    }
   };
 
   const formatDate = (date) => {
@@ -381,23 +515,20 @@ export default function ProfileScreen() {
           <Ionicons name="chevron-forward" size={24} color="#9F9F9F" />
         </TouchableOpacity>
 
-        <TouchableOpacity
-          style={styles.actionButton}
-          onPress={() =>
-            Alert.alert(
-              "Privacidade",
-              "Suas informações estão protegidas e armazenadas localmente no seu dispositivo. Nenhum dado é compartilhado com terceiros."
-            )
-          }
-          >
-          <Ionicons name="lock-closed-outline" size={24} color="#dddd" />
-          <Text style={styles.actionButtonText}>Privacidade e Segurança</Text>
-          <Ionicons name="chevron-forward" size={24} color="#9F9F9F" />
-        </TouchableOpacity>
-
         <TouchableOpacity style={styles.actionButton} onPress={handleClearData}>
           <Ionicons name="trash-outline" size={24} color="#dddd" />
           <Text style={styles.actionButtonText}>Limpar Dados do Diário</Text>
+          <Ionicons name="chevron-forward" size={24} color="#9F9F9F" />
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={[styles.actionButton, styles.deleteButton]}
+          onPress={handleDeleteAccount}
+        >
+          <Ionicons name="trash-bin-outline" size={24} color="#F44336" />
+          <Text style={[styles.actionButtonText, styles.deleteText]}>
+            Excluir Conta
+          </Text>
           <Ionicons name="chevron-forward" size={24} color="#9F9F9F" />
         </TouchableOpacity>
 
@@ -517,6 +648,57 @@ export default function ProfileScreen() {
                 onPress={handleSaveProfile}
               >
                 <Text style={styles.saveButtonText}>Salvar</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
+
+      {/* Modal de Confirmação de Exclusão de Conta */}
+      <Modal
+        animationType="fade"
+        transparent={true}
+        visible={isDeleteModalVisible}
+        onRequestClose={() => setIsDeleteModalVisible(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.deleteModalContent}>
+            <View style={styles.deleteModalHeader}>
+              <Ionicons name="warning" size={50} color="#F44336" />
+              <Text style={styles.deleteModalTitle}>Excluir Conta</Text>
+            </View>
+
+            <Text style={styles.deleteModalText}>
+              Esta ação é irreversível! Todos os seus dados, incluindo entradas do diário, serão permanentemente excluídos.
+            </Text>
+
+            <Text style={styles.deleteModalLabel}>
+              Digite sua senha para confirmar:
+            </Text>
+
+            <TextInput
+              style={styles.deletePasswordInput}
+              placeholder="Senha"
+              placeholderTextColor="#999"
+              value={deletePassword}
+              onChangeText={setDeletePassword}
+              secureTextEntry={true}
+              autoCapitalize="none"
+            />
+
+            <View style={styles.deleteModalButtons}>
+              <TouchableOpacity
+                style={styles.cancelDeleteButton}
+                onPress={() => setIsDeleteModalVisible(false)}
+              >
+                <Text style={styles.cancelDeleteButtonText}>Cancelar</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={styles.confirmDeleteButton}
+                onPress={confirmDeleteAccount}
+              >
+                <Text style={styles.confirmDeleteButtonText}>Excluir</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -803,5 +985,83 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "600",
     color: "#dddd",
+  },
+  deleteButton: {
+    borderTopWidth: 1,
+    borderTopColor: "#555",
+    marginTop: 10,
+  },
+  deleteText: {
+    color: "#F44336",
+  },
+  deleteModalContent: {
+    backgroundColor: "#403E3E",
+    borderRadius: 25,
+    padding: 25,
+    width: "90%",
+    maxWidth: 400,
+    alignItems: "center",
+  },
+  deleteModalHeader: {
+    alignItems: "center",
+    marginBottom: 20,
+  },
+  deleteModalTitle: {
+    fontSize: 24,
+    fontWeight: "bold",
+    color: "#F44336",
+    marginTop: 10,
+  },
+  deleteModalText: {
+    fontSize: 15,
+    color: "#dddd",
+    textAlign: "center",
+    marginBottom: 20,
+    lineHeight: 22,
+  },
+  deleteModalLabel: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: "#dddd",
+    alignSelf: "flex-start",
+    marginBottom: 10,
+  },
+  deletePasswordInput: {
+    width: "100%",
+    backgroundColor: "#9F9F9F",
+    borderRadius: 23,
+    padding: 15,
+    fontSize: 16,
+    color: "#333",
+    marginBottom: 25,
+  },
+  deleteModalButtons: {
+    flexDirection: "row",
+    width: "100%",
+    gap: 12,
+  },
+  cancelDeleteButton: {
+    flex: 1,
+    backgroundColor: "#9F9F9F",
+    borderRadius: 23,
+    padding: 15,
+    alignItems: "center",
+  },
+  cancelDeleteButtonText: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: "#333",
+  },
+  confirmDeleteButton: {
+    flex: 1,
+    backgroundColor: "#F44336",
+    borderRadius: 23,
+    padding: 15,
+    alignItems: "center",
+  },
+  confirmDeleteButtonText: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: "#fff",
   },
 });
