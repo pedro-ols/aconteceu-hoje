@@ -160,7 +160,7 @@ export default function CreateEntryScreen() {
           </View>
 
           <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
-            <Ionicons name="checkmark-circle" size={24} color="#fff" />
+            <Ionicons name="checkmark-circle" size={24} color="#dddd" />
             <Text style={styles.saveButtonText}>Salvar no Diário</Text>
           </TouchableOpacity>
         </View>
@@ -172,7 +172,7 @@ export default function CreateEntryScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#f5f5f5",
+    backgroundColor: "#403E3E",
   },
   scrollView: {
     flex: 1,
@@ -181,7 +181,7 @@ const styles = StyleSheet.create({
     paddingBottom: 40,
   },
   header: {
-    backgroundColor: "#4CAF50",
+    backgroundColor: "#403E3E",
     padding: 30,
     paddingTop: Platform.OS === "ios" ? 60 : 40,
     alignItems: "center",
@@ -189,13 +189,12 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 28,
     fontWeight: "bold",
-    color: "#fff",
+    color: "#dddd",
     marginBottom: 5,
   },
   headerSubtitle: {
     fontSize: 16,
-    color: "#fff",
-    opacity: 0.9,
+    color: "#9F9F9F",
     textTransform: "capitalize",
   },
   form: {
@@ -207,65 +206,61 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 16,
     fontWeight: "600",
-    color: "#333",
+    color: "#dddd",
     marginBottom: 10,
   },
   titleInput: {
-    backgroundColor: "#fff",
-    borderRadius: 12,
+    backgroundColor: "#9F9F9F",
+    borderRadius: 23,
     padding: 15,
     fontSize: 16,
-    borderWidth: 1,
-    borderColor: "#e0e0e0",
     color: "#333",
   },
   emotionsContainer: {
     flexDirection: "row",
   },
   emotionButton: {
-    backgroundColor: "#fff",
+    backgroundColor: "#676767",
     borderRadius: 20,
     paddingVertical: 10,
     paddingHorizontal: 15,
     marginRight: 10,
     borderWidth: 2,
-    borderColor: "#e0e0e0",
+    borderColor: "#676767",
     flexDirection: "row",
     alignItems: "center",
     gap: 8,
   },
   emotionLabel: {
     fontSize: 14,
-    color: "#666",
+    color: "#dddd",
   },
   contentInput: {
-    backgroundColor: "#fff",
-    borderRadius: 12,
+    backgroundColor: "#9F9F9F",
+    borderRadius: 23,
     padding: 15,
     fontSize: 16,
-    borderWidth: 1,
-    borderColor: "#e0e0e0",
     minHeight: 250,
     color: "#333",
   },
   charCount: {
     textAlign: "right",
     fontSize: 12,
-    color: "#999",
+    color: "#9F9F9F",
     marginTop: 5,
   },
   saveButton: {
-    backgroundColor: "#4CAF50",
+    backgroundColor: "#676767",
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
     padding: 18,
-    borderRadius: 12,
+    borderRadius: 23,
     marginTop: 10,
     gap: 10,
   },
   saveButtonText: {
-    color: "#fff",
+    color: "#dddd",
     fontSize: 18,
     fontWeight: "bold",
   },
