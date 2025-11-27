@@ -49,11 +49,23 @@ export default function CreateEntryScreen() {
       };
 
       const storageKey = `diary_entries_${user?.email}`;
+      console.log("=== SALVANDO ENTRADA ===");
+      console.log("Chave de armazenamento:", storageKey);
+      
       const existingData = await AsyncStorage.getItem(storageKey);
       const entries = existingData ? JSON.parse(existingData) : [];
+      console.log("Entradas existentes antes de salvar:", entries.length);
       
       entries.push(newEntry);
+      console.log("Total de entradas após adicionar nova:", entries.length);
+      
       await AsyncStorage.setItem(storageKey, JSON.stringify(entries));
+      console.log("Entrada salva com sucesso!");
+
+      // Limpar campos
+      setTitle("");
+      setContent("");
+      setSelectedEmotion("");
 
       Alert.alert("Sucesso!", "Sua entrada foi salva no diário.", [
         {
