@@ -9,6 +9,7 @@ import {
   KeyboardAvoidingView,
   Platform,
   ActivityIndicator,
+  Image,
 } from "react-native";
 import { useAuth } from "../../contexts/AuthContext";
 import { Link } from "expo-router";
@@ -45,30 +46,37 @@ export default function LoginScreen() {
       behavior={Platform.OS === "ios" ? "padding" : "height"}
     >
       <View style={styles.content}>
-        <Text style={styles.emoji}>🔐</Text>
-        <Text style={styles.title}>Bem-vindo!</Text>
-        <Text style={styles.subtitle}>Faça login para continuar</Text>
+        <View style={styles.ImageContainer}>
+          <Image
+            source={require("../../assets/images/logo.png")}
+            style={styles.logoImage}
+          />
+        </View>
 
-        <TextInput
-          style={styles.input}
-          placeholder="Email"
-          value={email}
-          onChangeText={setEmail}
-          keyboardType="email-address"
-          autoCapitalize="none"
-          autoCorrect={false}
-          editable={!loading}
-        />
+        <View style={styles.inputContainer}>
+          <TextInput
+            style={styles.input}
+            placeholder="Email"
+            value={email}
+            onChangeText={setEmail}
+            keyboardType="email-address"
+            autoCapitalize="none"
+            autoCorrect={false}
+            editable={!loading}
+            placeholderTextColor="#dddd"
+          />
 
-        <TextInput
-          style={styles.input}
-          placeholder="Senha"
-          value={password}
-          onChangeText={setPassword}
-          secureTextEntry
-          autoCapitalize="none"
-          editable={!loading}
-        />
+          <TextInput
+            style={styles.input}
+            placeholder="Senha"
+            value={password}
+            onChangeText={setPassword}
+            secureTextEntry
+            autoCapitalize="none"
+            editable={!loading}
+            placeholderTextColor="#dddd"
+          />
+        </View>
 
         <TouchableOpacity
           style={[styles.button, loading && styles.buttonDisabled]}
@@ -90,10 +98,6 @@ export default function LoginScreen() {
             </TouchableOpacity>
           </Link>
         </View>
-
-        <Text style={styles.infoText}>
-          💡 Dica: Se não tiver conta, crie uma nova!
-        </Text>
       </View>
     </KeyboardAvoidingView>
   );
@@ -102,17 +106,25 @@ export default function LoginScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#f5f5f5",
+    backgroundColor: "#403E3E",
   },
   content: {
     flex: 1,
     justifyContent: "center",
+    alignItems: "center",
     padding: 20,
   },
-  emoji: {
-    fontSize: 64,
-    textAlign: "center",
-    marginBottom: 20,
+  ImageContainer: {
+    width: "50%",
+    aspectRatio: 1,
+    backgroundColor: "#D9D3CC",
+    borderRadius: 30,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  logoImage: {
+    width: "100%",
+    height: "100%",
   },
   title: {
     fontSize: 28,
@@ -127,18 +139,26 @@ const styles = StyleSheet.create({
     marginBottom: 30,
     color: "#666",
   },
+  inputContainer: {
+    width: "100%",
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 20,
+    marginTop: 80,
+  },
   input: {
-    backgroundColor: "#fff",
-    borderRadius: 8,
+    width: "70%",
+    backgroundColor: "#9F9F9F",
+    borderRadius: 23,
     padding: 15,
     marginBottom: 15,
     fontSize: 16,
-    borderWidth: 1,
-    borderColor: "#ddd",
+    color: "#555",
   },
   button: {
-    backgroundColor: "#007AFF",
-    borderRadius: 8,
+    width: "30%",
+    backgroundColor: "#676767",
+    borderRadius: 23,
     padding: 15,
     alignItems: "center",
     marginTop: 10,
@@ -157,18 +177,12 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
   registerText: {
+    color: "#dddd",
     fontSize: 16,
-    color: "#666",
   },
   registerLink: {
+    color: "#dddd",
     fontSize: 16,
-    color: "#007AFF",
     fontWeight: "600",
-  },
-  infoText: {
-    textAlign: "center",
-    marginTop: 20,
-    fontSize: 14,
-    color: "#666",
   },
 });
