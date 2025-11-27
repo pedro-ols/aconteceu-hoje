@@ -9,8 +9,9 @@ import {
   KeyboardAvoidingView,
   Platform,
   ActivityIndicator,
-  ScrollView,
+  Image,
 } from "react-native";
+import { Link } from "expo-router";
 import { useAuth } from "../../contexts/AuthContext";
 import { useRouter } from "expo-router";
 
@@ -68,15 +69,14 @@ export default function RegisterScreen() {
       style={styles.container}
       behavior={Platform.OS === "ios" ? "padding" : "height"}
     >
-      <ScrollView
-        contentContainerStyle={styles.scrollContent}
-        keyboardShouldPersistTaps="handled"
-      >
-        <View style={styles.content}>
-          <Text style={styles.emoji}>✨</Text>
-          <Text style={styles.title}>Criar Conta</Text>
-          <Text style={styles.subtitle}>Preencha os dados abaixo</Text>
-
+      <View style={styles.content}>
+        <View style={styles.ImageContainer}>
+          <Image
+            source={require("../../assets/images/logo.png")}
+            style={styles.logoImage}
+          />
+        </View>
+        <View style={styles.inputContainer}>
           <TextInput
             style={styles.input}
             placeholder="Nome completo"
@@ -84,6 +84,7 @@ export default function RegisterScreen() {
             onChangeText={setName}
             autoCapitalize="words"
             editable={!loading}
+            placeholderTextColor="#dddd"
           />
 
           <TextInput
@@ -95,6 +96,7 @@ export default function RegisterScreen() {
             autoCapitalize="none"
             autoCorrect={false}
             editable={!loading}
+            placeholderTextColor="#dddd"
           />
 
           <TextInput
@@ -105,6 +107,7 @@ export default function RegisterScreen() {
             secureTextEntry
             autoCapitalize="none"
             editable={!loading}
+            placeholderTextColor="#dddd"
           />
 
           <TextInput
@@ -115,29 +118,28 @@ export default function RegisterScreen() {
             secureTextEntry
             autoCapitalize="none"
             editable={!loading}
+            placeholderTextColor="#dddd"
           />
-
-          <TouchableOpacity
-            style={[styles.button, loading && styles.buttonDisabled]}
-            onPress={handleRegister}
-            disabled={loading}
-          >
-            {loading ? (
-              <ActivityIndicator color="#fff" />
-            ) : (
-              <Text style={styles.buttonText}>Cadastrar</Text>
-            )}
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={styles.backButton}
-            onPress={() => router.back()}
-            disabled={loading}
-          >
-            <Text style={styles.backText}>← Voltar para login</Text>
-          </TouchableOpacity>
         </View>
-      </ScrollView>
+
+        <TouchableOpacity
+          style={[styles.button, loading && styles.buttonDisabled]}
+          onPress={handleRegister}
+          disabled={loading}
+        >
+          {loading ? (
+            <ActivityIndicator color="#fff" />
+          ) : (
+            <Text style={styles.buttonText}>Cadastrar</Text>
+          )}
+        </TouchableOpacity>
+
+        <Link href="/(auth)/login" asChild>
+          <TouchableOpacity style={styles.backButton} disabled={loading}>
+            <Text style={styles.backText}>Voltar para o login</Text>
+          </TouchableOpacity>
+        </Link>
+      </View>
     </KeyboardAvoidingView>
   );
 }
@@ -145,46 +147,49 @@ export default function RegisterScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#f5f5f5",
-  },
-  scrollContent: {
-    flexGrow: 1,
+    backgroundColor: "#403E3E",
   },
   content: {
     flex: 1,
     justifyContent: "center",
+    alignItems: "center",
     padding: 20,
   },
-  emoji: {
-    fontSize: 64,
-    textAlign: "center",
+  scrollContent: {
+    flexGrow: 1,
+  },
+  ImageContainer: {
+    width: "50%",
+    aspectRatio: 1,
+    backgroundColor: "#D9D3CC",
+    borderRadius: 30,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  logoImage: {
+    width: "100%",
+    height: "100%",
+  },
+  inputContainer: {
+    width: "100%",
+    alignItems: "center",
+    justifyContent: "center",
     marginBottom: 20,
-  },
-  title: {
-    fontSize: 28,
-    fontWeight: "bold",
-    textAlign: "center",
-    marginBottom: 8,
-    color: "#333",
-  },
-  subtitle: {
-    fontSize: 16,
-    textAlign: "center",
-    marginBottom: 30,
-    color: "#666",
+    marginTop: 80,
   },
   input: {
-    backgroundColor: "#fff",
-    borderRadius: 8,
+    width: "70%",
+    backgroundColor: "#9F9F9F",
+    borderRadius: 23,
     padding: 15,
     marginBottom: 15,
     fontSize: 16,
-    borderWidth: 1,
-    borderColor: "#ddd",
+    color: "#555",
   },
   button: {
-    backgroundColor: "#007AFF",
-    borderRadius: 8,
+    width: "30%",
+    backgroundColor: "#676767",
+    borderRadius: 23,
     padding: 15,
     alignItems: "center",
     marginTop: 10,
@@ -202,7 +207,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   backText: {
-    color: "#007AFF",
+    color: "#dddd",
     fontSize: 16,
   },
 });
