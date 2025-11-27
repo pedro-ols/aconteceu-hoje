@@ -237,7 +237,7 @@ export default function ListScreen() {
         onPress={() => router.push('/(tabs)/create')}
         activeOpacity={0.8}
       >
-        <Ionicons name="add" size={32} color="#fff" />
+        <Ionicons name="add" size={32} color="#dddd" />
       </TouchableOpacity>
     </View>
   );
@@ -251,7 +251,7 @@ const isLargeScreen = screenWidth >= 1024;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#f0f0f0",
+    backgroundColor: "#403E3E",
   },
   scrollContent: {
     flexGrow: 1,
@@ -260,17 +260,15 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "#f0f0f0",
+    backgroundColor: "#403E3E",
   },
   loadingText: {
     marginTop: 10,
     fontSize: 16,
-    color: "#434440",
+    color: "#9F9F9F",
   },
   header: {
-    backgroundColor: "#82837fff",
-    borderBottomLeftRadius: 25,
-    borderBottomRightRadius: 25,
+    backgroundColor: "#403E3E",
     marginBottom: 20,
     alignItems: "center",
   },
@@ -297,14 +295,14 @@ const styles = StyleSheet.create({
   logoText: {
     fontSize: 24,
     fontWeight: "bold",
-    color: "#fff",
+    color: "#dddd",
     letterSpacing: 2,
     marginBottom: 2,
   },
   logoSubtext: {
     fontSize: 16,
     fontWeight: "600",
-    color: "#d1d1d1",
+    color: "#9F9F9F",
     letterSpacing: 1,
   },
   logo: {
@@ -313,19 +311,19 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 28,
     fontWeight: "bold",
-    color: "#fff",
+    color: "#dddd",
     textAlign: "center",
     marginBottom: 5,
   },
   subtitle: {
     fontSize: 16,
-    color: "#d1d1d1",
+    color: "#9F9F9F",
     textAlign: "center",
     marginBottom: 10,
   },
   userName: {
     fontSize: isTablet ? 22 : 18,
-    color: "#fff",
+    color: "#dddd",
     fontWeight: "600",
     textAlign: "center",
   },
@@ -333,9 +331,9 @@ const styles = StyleSheet.create({
     // Padding é definido dinamicamente
   },
   diaryPage: {
-    backgroundColor: "#fafafa",
-    borderRadius: 8,
-    shadowColor: "#434440",
+    backgroundColor: "#676767",
+    borderRadius: 23,
+    shadowColor: "#000",
     shadowOffset: {
       width: 2,
       height: 3,
@@ -343,8 +341,6 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.15,
     shadowRadius: 4,
     elevation: 5,
-    borderWidth: 1,
-    borderColor: "#494a44",
     // Padding e margin são definidos dinamicamente
   },
   pageHeader: {
@@ -356,63 +352,57 @@ const styles = StyleSheet.create({
   dateField: {
     flexDirection: "row",
     alignItems: "center",
-    borderWidth: 1,
-    borderColor: "#494a44",
     borderRadius: 20,
     paddingHorizontal: 12,
     paddingVertical: 6,
-    backgroundColor: "#f5f5f5",
+    backgroundColor: "#9F9F9F",
   },
   dateLabel: {
     fontSize: 14,
-    color: "#434440",
+    color: "#333",
     marginRight: 8,
     fontWeight: "500",
   },
   dateValue: {
     fontSize: 14,
-    color: "#2c2c2a",
+    color: "#333",
     fontWeight: "600",
   },
   emotionField: {
-    borderWidth: 1,
-    borderColor: "#494a44",
     borderRadius: 15,
     paddingHorizontal: 15,
     paddingVertical: 8,
-    backgroundColor: "#fff",
+    backgroundColor: "#9F9F9F",
     minWidth: 80,
     alignItems: "center",
   },
   emotionValue: {
     fontSize: 14,
-    color: "#434440",
+    color: "#333",
     fontWeight: "600",
     textTransform: "capitalize",
   },
   titleSection: {
     marginBottom: 15,
     borderBottomWidth: 2,
-    borderBottomColor: "#494a44",
+    borderBottomColor: "#555",
     paddingBottom: 10,
   },
   titleText: {
     fontSize: isTablet ? 22 : 18,
     fontWeight: "bold",
-    color: "#2c2c2a",
+    color: "#dddd",
     textAlign: "center",
   },
   contentContainer: {
-    backgroundColor: "#ffffff",
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: "#e0e0e0",
+    backgroundColor: "#9F9F9F",
+    borderRadius: 15,
     width: '100%',
     height: '14rem',
   },
   contentText: {
     fontSize: isTablet ? 17 : 15,
-    color: "#2c2c2a",
+    color: "#333",
     lineHeight: isTablet ? 13 : 20,
     textAlign: "justify",
     marginTop: 7,
@@ -422,11 +412,9 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingVertical: 60,
     paddingHorizontal: 30,
-    backgroundColor: "#fafafa",
+    backgroundColor: "#676767",
     marginHorizontal: 15,
-    borderRadius: 15,
-    borderWidth: 1,
-    borderColor: "#494a44",
+    borderRadius: 23,
   },
   noEntriesText: {
     fontSize: 60,
@@ -435,13 +423,13 @@ const styles = StyleSheet.create({
   noEntriesTitle: {
     fontSize: 20,
     fontWeight: "bold",
-    color: "#2c2c2a",
+    color: "#dddd",
     marginBottom: 10,
     textAlign: "center",
   },
   noEntriesSubtitle: {
     fontSize: 16,
-    color: "#434440",
+    color: "#9F9F9F",
     textAlign: "center",
     lineHeight: 24,
     fontStyle: "italic",
@@ -453,7 +441,7 @@ const styles = StyleSheet.create({
     width: 60,
     height: 60,
     borderRadius: 30,
-    backgroundColor: '#4CAF50',
+    backgroundColor: '#676767',
     justifyContent: 'center',
     alignItems: 'center',
     elevation: 8,
