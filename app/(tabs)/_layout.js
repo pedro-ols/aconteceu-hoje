@@ -26,7 +26,14 @@ export default function TabsLayout() {
         name="list"
         options={{
           title: "Diário",
-          tabBarIcon: ({ color }) => <Text style={{ fontSize: 24 }}>�</Text>,
+          tabBarIcon: ({ color }) => <Text style={{ fontSize: 24 }}>📓</Text>,
+        }}
+      />
+      <Tabs.Screen
+        name="create"
+        options={{
+          title: "Criar",
+          tabBarIcon: ({ color }) => <Text style={{ fontSize: 24 }}>🪶</Text>,
         }}
       />
       <Tabs.Screen

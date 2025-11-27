@@ -4,215 +4,217 @@ import {
   Text, 
   StyleSheet, 
   ScrollView, 
-  ActivityIndicator, 
-  RefreshControl,
-  Platform,
-  Image
+  TouchableOpacity,
+  Image,
+  Dimensions,
 } from "react-native";
 import { useAuth } from "../../contexts/AuthContext";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { createDiaryEntryTemplate, loadDiaryEntries as loadEntries } from "../../utils/diaryTemplate";
+import { Ionicons } from "@expo/vector-icons";
+import { useRouter } from "expo-router";
+import { useFocusEffect } from "@react-navigation/native";
+import { useCallback } from "react";
 
-export default function ListScreen() {
+const { width: screenWidth } = Dimensions.get("window");
+
+export default function HomeScreen() {
   const { user } = useAuth();
-  const [diaryEntries, setDiaryEntries] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [refreshing, setRefreshing] = useState(false);
+  const router = useRouter();
+  const [stats, setStats] = useState({
+    totalEntries: 0,
+    todayEntry: false,
+    currentStreak: 0,
+  });
+  const [quote, setQuote] = useState("");
 
-  // Função para carregar entradas do diário do AsyncStorage
-  const loadDiaryEntries = async () => {
-    try {
-      setLoading(true);
-      
-      if (user?.email) {
-        const entries = await loadEntries(user.email);
-        setDiaryEntries(entries);
-      } else {
-        setDiaryEntries([]);
-      }
-    } catch (error) {
-      console.error('Erro ao carregar entradas do diário:', error);
-      setDiaryEntries([]);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const motivationalQuotes = [
+    "A escrita é a pintura da voz. - Voltaire",
+    "Escrever é uma forma de terapia. - Graham Greene",
+    "Um diário é um amigo que nunca julga. - Anônimo",
+    "Suas palavras têm poder. Use-as com sabedoria.",
+    "Cada página é uma nova oportunidade de se conhecer melhor.",
+    "A vida acontece agora. Registre este momento.",
+    "Seus pensamentos merecem ser lembrados.",
+  ];
 
-  // Função para refresh da lista
-  const onRefresh = async () => {
-    setRefreshing(true);
-    await loadDiaryEntries();
-    setRefreshing(false);
-  };
-
-  // Função para criar entrada de exemplo
-  const createSampleEntry = async () => {
-    const sampleEntry = createDiaryEntryTemplate({
-      id: "sample-1",
-      title: "Meu primeiro dia no diário",
-      content: "Hoje foi um dia especial! Comecei a usar este diário digital e me sinto esperançoso sobre essa nova jornada de autoconhecimento. É incrível como escrever pode nos ajudar a organizar os pensamentos. Este novo formato me lembra dos diários antigos que eu tinha quando era mais jovem. Estou animado para continuar escrevendo aqui todos os dias e documentar minha vida.",
-      emotion: "esperançoso"
-    });
-
-    try {
-      await AsyncStorage.setItem(`diary_entries_${user?.email}`, JSON.stringify([sampleEntry]));
-    } catch (error) {
-      console.error('Erro ao criar entrada de exemplo:', error);
-    }
-  };
-
-  // Carrega as entradas ao montar o componente
   useEffect(() => {
-    const initializeDiary = async () => {
+    setQuote(
+      motivationalQuotes[Math.floor(Math.random() * motivationalQuotes.length)]
+    );
+  }, []);
+
+  const loadStats = async () => {
+    try {
       if (user?.email) {
-        const savedEntries = await AsyncStorage.getItem(`diary_entries_${user?.email}`);
-        if (!savedEntries) {
-          await createSampleEntry();
-        }
-        loadDiaryEntries();
-      }
-    };
-    
-    initializeDiary();
-  }, [user]);
+        const entriesData = await AsyncStorage.getItem(
+          `diary_entries_${user.email}`
+        );
+        const entries = entriesData ? JSON.parse(entriesData) : [];
 
-  // Função para formatar a data
-  const formatDate = (dateString) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('pt-BR', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    });
-  };
+        const totalEntries = entries.length;
 
-  // Função para obter cor da emoção
-  const getEmotionColor = (emotion) => {
-    const emotionColors = {
-      'feliz': '#4CAF50',
-      'triste': '#2196F3',
-      'ansioso': '#FF9800',
-      'calmo': '#9C27B0',
-      'irritado': '#F44336',
-      'esperançoso': '#00BCD4',
-      'nostálgico': '#795548',
-      'energético': '#CDDC39'
-    };
-    return emotionColors[emotion?.toLowerCase()] || '#757575';
-  };
+        // Verificar se já escreveu hoje
+        const today = new Date().toDateString();
+        const todayEntry = entries.some(
+          (entry) => new Date(entry.date).toDateString() === today
+        );
 
-  // Renderiza cada entrada do diário
-  const renderDiaryEntry = (entry, index) => (
-    <View key={entry.id || index} style={styles.diaryPage}>
-      {/* Header da página do diário */}
-      <View style={styles.pageHeader}>
-        <View style={styles.dateField}>
-          <Text style={styles.dateLabel}>Data:</Text>
-          <Text style={styles.dateValue}>{formatDate(entry.date)}</Text>
-        </View>
-        
-        {entry.emotion && (
-          <View style={styles.emotionField}>
-            <Text style={styles.emotionValue}>{entry.emotion}</Text>
-          </View>
-        )}
-      </View>
+        // Calcular sequência de dias
+        let currentStreak = 0;
+        if (entries.length > 0) {
+          const sortedDates = entries
+            .map((e) => new Date(e.date).toDateString())
+            .sort((a, b) => new Date(b) - new Date(a));
 
-      {/* Título se existir */}
-      {entry.title && (
-        <View style={styles.titleSection}>
-          <Text style={styles.titleText}>{entry.title}</Text>
-        </View>
-      )}
+          const uniqueDates = [...new Set(sortedDates)];
+          let checkDate = new Date();
 
-      {/* Linhas do diário com o texto */}
-      <View style={styles.linesContainer}>
-        {(() => {
-          // Divide o texto em palavras e distribui nas linhas
-          const words = entry.content.split(' ');
-          const lines = [];
-          let currentLine = '';
-          const maxWordsPerLine = 8; // Aproximadamente 8-10 palavras por linha
-          
-          words.forEach((word, index) => {
-            if (currentLine.split(' ').length < maxWordsPerLine) {
-              currentLine += (currentLine ? ' ' : '') + word;
+          for (let date of uniqueDates) {
+            const entryDate = new Date(date);
+            if (
+              entryDate.toDateString() === checkDate.toDateString() ||
+              entryDate.toDateString() ===
+                new Date(checkDate.getTime() - 86400000).toDateString()
+            ) {
+              currentStreak++;
+              checkDate = new Date(checkDate.getTime() - 86400000);
             } else {
-              lines.push(currentLine);
-              currentLine = word;
+              break;
             }
-          });
-          
-          // Adiciona a última linha se houver conteúdo
-          if (currentLine) {
-            lines.push(currentLine);
           }
-          
-          // Renderiza as linhas com texto
-          return lines.map((line, lineIndex) => (
-            <View key={lineIndex} style={styles.diaryLine}>
-              <View style={styles.bulletPoint} />
-              <Text style={styles.lineText}>{line}</Text>
-              <View style={styles.underline} />
-            </View>
-          ));
-        })()}
-        
-        {/* Linhas extras vazias para completar o visual */}
-        {(() => {
-          const textLines = Math.ceil(entry.content.split(' ').length / 8);
-          const emptyLines = Math.max(0, 8 - textLines);
-          
-          return Array.from({ length: emptyLines }).map((_, emptyIndex) => (
-            <View key={`empty-${emptyIndex}`} style={styles.diaryLine}>
-              <View style={styles.bulletPoint} />
-              <Text style={styles.lineText}></Text>
-              <View style={styles.underline} />
-            </View>
-          ));
-        })()}
-      </View>
-    </View>
+        }
+
+        setStats({ totalEntries, todayEntry, currentStreak });
+      }
+    } catch (error) {
+      console.error("Erro ao carregar estatísticas:", error);
+    }
+  };
+
+  useFocusEffect(
+    useCallback(() => {
+      loadStats();
+    }, [user])
   );
 
-  if (loading) {
-    return (
-      <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#007AFF" />
-        <Text style={styles.loadingText}>Carregando seu diário...</Text>
-      </View>
-    );
-  }
-
   return (
-    <ScrollView 
-      style={styles.container}
-      contentContainerStyle={styles.scrollContent}
-      showsVerticalScrollIndicator={true}
-      bounces={true}
-      refreshControl={
-        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-      }
-    >
+    <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
+      {/* Header */}
       <View style={styles.header}>
-        <View style={styles.logoContainer}>
-          {/* Você pode substituir este View por uma Image quando tiver a logo salva */}
-          <View style={styles.logoPlaceholder}>
-          <Image 
-            source={require('../../assets/images/logo.png')} 
-            style={styles.logo}
-          />
-         
-          </View>
-          
-        </View>
-        <Text style={styles.userName}>{user?.name}</Text>
+        <Image
+          source={require("../../assets/images/logo.png")}
+          style={styles.logo}
+          resizeMode="contain"
+        />
+        <Text style={styles.greeting}>Olá, {user?.name?.split(" ")[0]}! 👋</Text>
+        <Text style={styles.date}>
+          {new Date().toLocaleDateString("pt-BR", {
+            weekday: "long",
+            day: "numeric",
+            month: "long",
+          })}
+        </Text>
       </View>
-      <View style={styles.entriesList}>
-        
+
+      {/* Quote Card */}
+      <View style={styles.quoteCard}>
+        <Ionicons name="quote" size={24} color="#4CAF50" />
+        <Text style={styles.quoteText}>{quote}</Text>
+      </View>
+
+      {/* Stats Grid */}
+      <View style={styles.statsGrid}>
+        <View style={styles.statCard}>
+          <Ionicons name="book" size={32} color="#4CAF50" />
+          <Text style={styles.statNumber}>{stats.totalEntries}</Text>
+          <Text style={styles.statLabel}>Entradas</Text>
         </View>
+
+        <View style={styles.statCard}>
+          <Ionicons name="flame" size={32} color="#FF9800" />
+          <Text style={styles.statNumber}>{stats.currentStreak}</Text>
+          <Text style={styles.statLabel}>Dias Seguidos</Text>
+        </View>
+      </View>
+
+      {/* Today's Status */}
+      <View
+        style={[
+          styles.todayCard,
+          stats.todayEntry ? styles.todayCardDone : styles.todayCardPending,
+        ]}
+      >
+        <Ionicons
+          name={stats.todayEntry ? "checkmark-circle" : "time"}
+          size={40}
+          color={stats.todayEntry ? "#4CAF50" : "#FF9800"}
+        />
+        <View style={styles.todayContent}>
+          <Text style={styles.todayTitle}>
+            {stats.todayEntry
+              ? "Você já escreveu hoje! 🎉"
+              : "Ainda não escreveu hoje"}
+          </Text>
+          <Text style={styles.todaySubtitle}>
+            {stats.todayEntry
+              ? "Continue assim! Sua jornada de autoconhecimento está incrível."
+              : "Que tal registrar como foi seu dia?"}
+          </Text>
+        </View>
+      </View>
+
+      {/* Quick Actions */}
+      <View style={styles.actionsSection}>
+        <Text style={styles.sectionTitle}>Ações Rápidas</Text>
+
+        <TouchableOpacity
+          style={styles.actionCard}
+          onPress={() => router.push("/(tabs)/create")}
+        >
+          <View style={[styles.actionIcon, { backgroundColor: "#E8F5E9" }]}>
+            <Ionicons name="create" size={28} color="#4CAF50" />
+          </View>
+          <View style={styles.actionContent}>
+            <Text style={styles.actionTitle}>Nova Entrada</Text>
+            <Text style={styles.actionSubtitle}>
+              Escreva sobre seu dia
+            </Text>
+          </View>
+          <Ionicons name="chevron-forward" size={24} color="#ccc" />
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={styles.actionCard}
+          onPress={() => router.push("/(tabs)/list")}
+        >
+          <View style={[styles.actionIcon, { backgroundColor: "#E3F2FD" }]}>
+            <Ionicons name="list" size={28} color="#2196F3" />
+          </View>
+          <View style={styles.actionContent}>
+            <Text style={styles.actionTitle}>Ver Entradas</Text>
+            <Text style={styles.actionSubtitle}>
+              Reveja suas memórias
+            </Text>
+          </View>
+          <Ionicons name="chevron-forward" size={24} color="#ccc" />
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={styles.actionCard}
+          onPress={() => router.push("/(tabs)/profile")}
+        >
+          <View style={[styles.actionIcon, { backgroundColor: "#F3E5F5" }]}>
+            <Ionicons name="person" size={28} color="#9C27B0" />
+          </View>
+          <View style={styles.actionContent}>
+            <Text style={styles.actionTitle}>Meu Perfil</Text>
+            <Text style={styles.actionSubtitle}>
+              Estatísticas e configurações
+            </Text>
+          </View>
+          <Ionicons name="chevron-forward" size={24} color="#ccc" />
+        </TouchableOpacity>
+      </View>
     </ScrollView>
   );
 }
@@ -220,222 +222,159 @@ export default function ListScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#f0f0f0",
-  },
-  scrollContent: {
-    flexGrow: 1,
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "#f0f0f0",
-  },
-  loadingText: {
-    marginTop: 10,
-    fontSize: 16,
-    color: "#434440",
+    backgroundColor: "#f5f5f5",
   },
   header: {
-    backgroundColor: "#434440",
-    paddingVertical: 30,
+    backgroundColor: "#82837fff",
+    paddingTop: 60,
+    paddingBottom: 30,
     paddingHorizontal: 20,
-    borderBottomLeftRadius: 25,
-    borderBottomRightRadius: 25,
-    marginBottom: 20,
+    borderBottomLeftRadius: 30,
+    borderBottomRightRadius: 30,
     alignItems: "center",
-  },
-  logoContainer: {
-    alignItems: "center",
-    marginBottom: 15,
-  },
-  logoPlaceholder: {
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  bookIcon: {
-    backgroundColor: "rgba(255,255,255,0.1)",
-    borderRadius: 25,
-    width: 50,
-    height: 50,
-    alignItems: "center",
-    justifyContent: "center",
-    marginBottom: 10,
-  },
-  bookEmoji: {
-    fontSize: 24,
-  },
-  logoText: {
-    fontSize: 24,
-    fontWeight: "bold",
-    color: "#fff",
-    letterSpacing: 2,
-    marginBottom: 2,
-  },
-  logoSubtext: {
-    fontSize: 16,
-    fontWeight: "600",
-    color: "#d1d1d1",
-    letterSpacing: 1,
   },
   logo: {
-    width: 200,
-    height: 150,
+    width: 80,
+    height: 80,
+    marginBottom: 15,
   },
-  title: {
+  greeting: {
     fontSize: 28,
     fontWeight: "bold",
     color: "#fff",
-    textAlign: "center",
     marginBottom: 5,
   },
-  subtitle: {
+  date: {
     fontSize: 16,
-    color: "#d1d1d1",
-    textAlign: "center",
-    marginBottom: 10,
-  },
-  userName: {
-    fontSize: 18,
     color: "#fff",
-    fontWeight: "600",
-    textAlign: "center",
-  },
-  entriesList: {
-    paddingHorizontal: 15,
-    paddingBottom: 30,
-    paddingTop: 10,
-  },
-  diaryPage: {
-    backgroundColor: "#fafafa",
-    borderRadius: 8,
-    padding: 20,
-    marginBottom: 20,
-    shadowColor: "#434440",
-    shadowOffset: {
-      width: 2,
-      height: 3,
-    },
-    shadowOpacity: 0.15,
-    shadowRadius: 4,
-    elevation: 5,
-    borderWidth: 1,
-    borderColor: "#494a44",
-  },
-  pageHeader: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: 20,
-  },
-  dateField: {
-    flexDirection: "row",
-    alignItems: "center",
-    borderWidth: 1,
-    borderColor: "#494a44",
-    borderRadius: 20,
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    backgroundColor: "#f5f5f5",
-  },
-  dateLabel: {
-    fontSize: 14,
-    color: "#434440",
-    marginRight: 8,
-    fontWeight: "500",
-  },
-  dateValue: {
-    fontSize: 14,
-    color: "#2c2c2a",
-    fontWeight: "600",
-  },
-  emotionField: {
-    borderWidth: 1,
-    borderColor: "#494a44",
-    borderRadius: 15,
-    paddingHorizontal: 15,
-    paddingVertical: 8,
-    backgroundColor: "#fff",
-    minWidth: 80,
-    alignItems: "center",
-  },
-  emotionValue: {
-    fontSize: 14,
-    color: "#434440",
-    fontWeight: "600",
+    opacity: 0.9,
     textTransform: "capitalize",
   },
-  titleSection: {
-    marginBottom: 15,
-    borderBottomWidth: 1,
-    borderBottomColor: "#494a44",
-    paddingBottom: 5,
-  },
-  titleText: {
-    fontSize: 18,
-    fontWeight: "bold",
-    color: "#2c2c2a",
-    textAlign: "center",
-  },
-  linesContainer: {
-    marginBottom: 15,
-  },
-  diaryLine: {
+  quoteCard: {
+    backgroundColor: "#fff",
+    margin: 20,
+    padding: 20,
+    borderRadius: 15,
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: 8,
-    minHeight: 24,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
   },
-  bulletPoint: {
-    width: 6,
-    height: 6,
-    borderRadius: 3,
-    backgroundColor: "#494a44",
-    marginRight: 12,
-    marginTop: 2,
-  },
-  lineText: {
+  quoteText: {
     flex: 1,
+    marginLeft: 15,
     fontSize: 15,
-    color: "#2c2c2a",
+    color: "#666",
+    fontStyle: "italic",
     lineHeight: 22,
-    fontFamily: Platform.OS === 'ios' ? 'Georgia' : 'serif',
   },
-  underline: {
-    position: "absolute",
-    bottom: 0,
-    left: 18,
-    right: 0,
-    height: 1,
-    backgroundColor: "#494a44",
-    opacity: 0.4,
-  },
-  noEntriesContainer: {
-    alignItems: "center",
-    paddingVertical: 60,
-    paddingHorizontal: 30,
-    backgroundColor: "#fafafa",
-    marginHorizontal: 15,
-    borderRadius: 15,
-    borderWidth: 1,
-    borderColor: "#494a44",
-  },
-  noEntriesText: {
-    fontSize: 60,
+  statsGrid: {
+    flexDirection: "row",
+    paddingHorizontal: 20,
+    gap: 15,
     marginBottom: 20,
   },
-  noEntriesTitle: {
+  statCard: {
+    flex: 1,
+    backgroundColor: "#fff",
+    padding: 20,
+    borderRadius: 15,
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  statNumber: {
+    fontSize: 32,
+    fontWeight: "bold",
+    color: "#333",
+    marginTop: 10,
+  },
+  statLabel: {
+    fontSize: 14,
+    color: "#666",
+    marginTop: 5,
+  },
+  todayCard: {
+    flexDirection: "row",
+    marginHorizontal: 20,
+    padding: 20,
+    borderRadius: 15,
+    marginBottom: 30,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  todayCardDone: {
+    backgroundColor: "#E8F5E9",
+  },
+  todayCardPending: {
+    backgroundColor: "#FFF3E0",
+  },
+  todayContent: {
+    flex: 1,
+    marginLeft: 15,
+  },
+  todayTitle: {
+    fontSize: 18,
+    fontWeight: "bold",
+    color: "#333",
+    marginBottom: 5,
+  },
+  todaySubtitle: {
+    fontSize: 14,
+    color: "#666",
+    lineHeight: 20,
+  },
+  actionsSection: {
+    paddingHorizontal: 20,
+    marginBottom: 30,
+  },
+  sectionTitle: {
     fontSize: 20,
     fontWeight: "bold",
-    color: "#2c2c2a",
-    marginBottom: 10,
-    textAlign: "center",
+    color: "#333",
+    marginBottom: 15,
   },
-  noEntriesSubtitle: {
+  actionCard: {
+    backgroundColor: "#fff",
+    flexDirection: "row",
+    alignItems: "center",
+    padding: 15,
+    borderRadius: 12,
+    marginBottom: 12,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+    elevation: 2,
+  },
+  actionIcon: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  actionContent: {
+    flex: 1,
+    marginLeft: 15,
+  },
+  actionTitle: {
     fontSize: 16,
-    color: "#434440",
-    textAlign: "center",
-    lineHeight: 24,
-    fontStyle: "italic",
+    fontWeight: "600",
+    color: "#333",
+    marginBottom: 3,
+  },
+  actionSubtitle: {
+    fontSize: 14,
+    color: "#666",
   },
 });
