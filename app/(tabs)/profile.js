@@ -287,19 +287,19 @@ export default function ProfileScreen() {
 
         <View style={styles.statsGrid}>
           <View style={styles.statCard}>
-            <Ionicons name="book-outline" size={32} color="#4CAF50" />
+            <Ionicons name="book-outline" size={32} color="#dddd" />
             <Text style={styles.statNumber}>{stats.totalEntries}</Text>
             <Text style={styles.statLabel}>Entradas</Text>
           </View>
 
           <View style={styles.statCard}>
-            <Ionicons name="calendar-outline" size={32} color="#2196F3" />
+            <Ionicons name="calendar-outline" size={32} color="#dddd" />
             <Text style={styles.statNumber}>{stats.daysActive}</Text>
             <Text style={styles.statLabel}>Dias Ativos</Text>
           </View>
 
           <View style={styles.statCard}>
-            <Ionicons name="happy-outline" size={32} color="#FF9800" />
+            <Ionicons name="happy-outline" size={32} color="#dddd" />
             <Text style={styles.statNumber}>
               {stats.favoriteEmotion.length > 8
                 ? stats.favoriteEmotion.substring(0, 8) + "..."
@@ -309,7 +309,7 @@ export default function ProfileScreen() {
           </View>
 
           <View style={styles.statCard}>
-            <Ionicons name="time-outline" size={32} color="#9C27B0" />
+            <Ionicons name="time-outline" size={32} color="#dddd" />
             <Text style={styles.statNumberSmall}>
               {stats.lastEntry ? formatDate(stats.lastEntry).split(" ")[0] : "-"}
             </Text>
@@ -324,7 +324,7 @@ export default function ProfileScreen() {
 
         <View style={styles.infoCard}>
           <View style={styles.infoRow}>
-            <Ionicons name="person-outline" size={24} color="#666" />
+            <Ionicons name="person-outline" size={24} color="#9F9F9F" />
             <View style={styles.infoContent}>
               <Text style={styles.infoLabel}>Nome</Text>
               <Text style={styles.infoValue}>{user?.name || "-"}</Text>
@@ -334,7 +334,7 @@ export default function ProfileScreen() {
           <View style={styles.divider} />
 
           <View style={styles.infoRow}>
-            <Ionicons name="mail-outline" size={24} color="#666" />
+            <Ionicons name="mail-outline" size={24} color="#9F9F9F" />
             <View style={styles.infoContent}>
               <Text style={styles.infoLabel}>Email</Text>
               <Text style={styles.infoValue}>{user?.email || "-"}</Text>
@@ -344,7 +344,7 @@ export default function ProfileScreen() {
           <View style={styles.divider} />
 
           <View style={styles.infoRow}>
-            <Ionicons name="shield-checkmark-outline" size={24} color="#666" />
+            <Ionicons name="shield-checkmark-outline" size={24} color="#9F9F9F" />
             <View style={styles.infoContent}>
               <Text style={styles.infoLabel}>ID da Conta</Text>
               <Text style={styles.infoValue}>
@@ -376,9 +376,9 @@ export default function ProfileScreen() {
           style={styles.actionButton}
           onPress={handleEditProfile}
         >
-          <Ionicons name="create-outline" size={24} color="#2196F3" />
+          <Ionicons name="create-outline" size={24} color="#dddd" />
           <Text style={styles.actionButtonText}>Editar Perfil</Text>
-          <Ionicons name="chevron-forward" size={24} color="#ccc" />
+          <Ionicons name="chevron-forward" size={24} color="#9F9F9F" />
         </TouchableOpacity>
 
         <TouchableOpacity
@@ -389,16 +389,16 @@ export default function ProfileScreen() {
               "Suas informações estão protegidas e armazenadas localmente no seu dispositivo. Nenhum dado é compartilhado com terceiros."
             )
           }
-        >
-          <Ionicons name="lock-closed-outline" size={24} color="#4CAF50" />
+          >
+          <Ionicons name="lock-closed-outline" size={24} color="#dddd" />
           <Text style={styles.actionButtonText}>Privacidade e Segurança</Text>
-          <Ionicons name="chevron-forward" size={24} color="#ccc" />
+          <Ionicons name="chevron-forward" size={24} color="#9F9F9F" />
         </TouchableOpacity>
 
         <TouchableOpacity style={styles.actionButton} onPress={handleClearData}>
-          <Ionicons name="trash-outline" size={24} color="#FF9800" />
+          <Ionicons name="trash-outline" size={24} color="#dddd" />
           <Text style={styles.actionButtonText}>Limpar Dados do Diário</Text>
-          <Ionicons name="chevron-forward" size={24} color="#ccc" />
+          <Ionicons name="chevron-forward" size={24} color="#9F9F9F" />
         </TouchableOpacity>
 
         <TouchableOpacity
@@ -409,7 +409,7 @@ export default function ProfileScreen() {
           <Text style={[styles.actionButtonText, styles.logoutText]}>
             Sair da Conta
           </Text>
-          <Ionicons name="chevron-forward" size={24} color="#ccc" />
+          <Ionicons name="chevron-forward" size={24} color="#9F9F9F" />
         </TouchableOpacity>
       </View>
 
@@ -434,7 +434,7 @@ export default function ProfileScreen() {
                 onPress={() => setIsEditModalVisible(false)}
                 style={styles.closeButton}
               >
-                <Ionicons name="close" size={28} color="#666" />
+                <Ionicons name="close" size={28} color="#dddd" />
               </TouchableOpacity>
             </View>
 
@@ -477,7 +477,7 @@ export default function ProfileScreen() {
                   <Ionicons
                     name={showPassword ? "eye-off-outline" : "eye-outline"}
                     size={24}
-                    color="#666"
+                    color="#333"
                   />
                 </TouchableOpacity>
               </View>
@@ -529,25 +529,20 @@ export default function ProfileScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#f5f5f5",
+    backgroundColor: "#403E3E",
   },
   header: {
-    backgroundColor: "#fff",
+    backgroundColor: "#403E3E",
     alignItems: "center",
     paddingTop: Platform.OS === "ios" ? 60 : 40,
     paddingBottom: 30,
-    borderBottomLeftRadius: 30,
-    borderBottomRightRadius: 30,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 5,
   },
   logo: {
-    width: 80,
-    height: 80,
+    width: 120,
+    height: 120,
     marginBottom: 20,
+    backgroundColor: "#D9D3CC",
+    borderRadius: 30,
   },
   avatarContainer: {
     position: "relative",
@@ -557,21 +552,16 @@ const styles = StyleSheet.create({
     width: 100,
     height: 100,
     borderRadius: 50,
-    backgroundColor: "#4CAF50",
+    backgroundColor: "#676767",
     justifyContent: "center",
     alignItems: "center",
-    borderWidth: 4,
-    borderColor: "#fff",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.2,
-    shadowRadius: 8,
-    elevation: 8,
+    borderWidth: 3,
+    borderColor: "#D9D3CC",
   },
   avatarText: {
     fontSize: 36,
     fontWeight: "bold",
-    color: "#fff",
+    color: "#dddd",
   },
   onlineIndicator: {
     position: "absolute",
@@ -582,22 +572,22 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     backgroundColor: "#4CAF50",
     borderWidth: 3,
-    borderColor: "#fff",
+    borderColor: "#403E3E",
   },
   userName: {
     fontSize: 28,
     fontWeight: "bold",
-    color: "#333",
+    color: "#dddd",
     marginBottom: 5,
   },
   userEmail: {
     fontSize: 16,
-    color: "#666",
+    color: "#9F9F9F",
     marginBottom: 5,
   },
   memberSince: {
     fontSize: 14,
-    color: "#999",
+    color: "#9F9F9F",
     fontStyle: "italic",
   },
   statsSection: {
@@ -606,7 +596,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 20,
     fontWeight: "bold",
-    color: "#333",
+    color: "#dddd",
     marginBottom: 15,
   },
   statsGrid: {
@@ -615,35 +605,30 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
   },
   statCard: {
-    backgroundColor: "#fff",
+    backgroundColor: "#676767",
     width: "48%",
     padding: 20,
-    borderRadius: 15,
+    borderRadius: 23,
     alignItems: "center",
     marginBottom: 15,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
   },
   statNumber: {
     fontSize: 28,
     fontWeight: "bold",
-    color: "#333",
+    color: "#dddd",
     marginTop: 10,
     marginBottom: 5,
   },
   statNumberSmall: {
     fontSize: 18,
     fontWeight: "bold",
-    color: "#333",
+    color: "#dddd",
     marginTop: 10,
     marginBottom: 5,
   },
   statLabel: {
     fontSize: 14,
-    color: "#666",
+    color: "#9F9F9F",
     textAlign: "center",
   },
   section: {
@@ -651,14 +636,9 @@ const styles = StyleSheet.create({
     paddingTop: 10,
   },
   infoCard: {
-    backgroundColor: "#fff",
-    borderRadius: 15,
+    backgroundColor: "#676767",
+    borderRadius: 23,
     padding: 15,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
   },
   infoRow: {
     flexDirection: "row",
@@ -671,51 +651,41 @@ const styles = StyleSheet.create({
   },
   infoLabel: {
     fontSize: 14,
-    color: "#999",
+    color: "#9F9F9F",
     marginBottom: 5,
   },
   infoValue: {
     fontSize: 16,
-    color: "#333",
+    color: "#dddd",
     fontWeight: "500",
   },
   divider: {
     height: 1,
-    backgroundColor: "#f0f0f0",
+    backgroundColor: "#555",
   },
   aboutCard: {
-    backgroundColor: "#fff",
-    borderRadius: 15,
+    backgroundColor: "#676767",
+    borderRadius: 23,
     padding: 20,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
   },
   aboutText: {
     fontSize: 15,
-    color: "#666",
+    color: "#9F9F9F",
     lineHeight: 24,
     textAlign: "justify",
   },
   actionButton: {
-    backgroundColor: "#fff",
+    backgroundColor: "#676767",
     flexDirection: "row",
     alignItems: "center",
     padding: 18,
-    borderRadius: 12,
+    borderRadius: 23,
     marginBottom: 12,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 3,
-    elevation: 2,
   },
   actionButtonText: {
     flex: 1,
     fontSize: 16,
-    color: "#333",
+    color: "#dddd",
     marginLeft: 15,
     fontWeight: "500",
   },
@@ -733,31 +703,26 @@ const styles = StyleSheet.create({
   },
   footerText: {
     fontSize: 14,
-    color: "#999",
+    color: "#9F9F9F",
     marginBottom: 5,
   },
   footerVersion: {
     fontSize: 12,
-    color: "#ccc",
+    color: "#676767",
   },
   modalOverlay: {
     flex: 1,
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    backgroundColor: "rgba(0, 0, 0, 0.7)",
     justifyContent: "center",
     alignItems: "center",
     padding: 20,
   },
   modalContent: {
-    backgroundColor: "#fff",
-    borderRadius: 20,
+    backgroundColor: "#403E3E",
+    borderRadius: 30,
     width: "100%",
     maxWidth: 400,
     maxHeight: "80%",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 10,
   },
   modalHeader: {
     flexDirection: "row",
@@ -765,12 +730,12 @@ const styles = StyleSheet.create({
     alignItems: "center",
     padding: 20,
     borderBottomWidth: 1,
-    borderBottomColor: "#f0f0f0",
+    borderBottomColor: "#555",
   },
   modalTitle: {
     fontSize: 22,
     fontWeight: "bold",
-    color: "#333",
+    color: "#dddd",
   },
   closeButton: {
     padding: 5,
@@ -781,17 +746,15 @@ const styles = StyleSheet.create({
   inputLabel: {
     fontSize: 16,
     fontWeight: "600",
-    color: "#333",
+    color: "#dddd",
     marginBottom: 10,
   },
   input: {
-    backgroundColor: "#f5f5f5",
-    borderRadius: 12,
+    backgroundColor: "#9F9F9F",
+    borderRadius: 23,
     padding: 15,
     fontSize: 16,
     color: "#333",
-    borderWidth: 1,
-    borderColor: "#e0e0e0",
   },
   passwordContainer: {
     position: "relative",
@@ -807,7 +770,7 @@ const styles = StyleSheet.create({
   },
   helperText: {
     fontSize: 13,
-    color: "#999",
+    color: "#9F9F9F",
     marginTop: 8,
     marginBottom: 20,
     fontStyle: "italic",
@@ -817,30 +780,28 @@ const styles = StyleSheet.create({
     padding: 20,
     gap: 12,
     borderTopWidth: 1,
-    borderTopColor: "#f0f0f0",
+    borderTopColor: "#555",
   },
   modalButton: {
     flex: 1,
     padding: 15,
-    borderRadius: 12,
+    borderRadius: 23,
     alignItems: "center",
   },
   cancelButton: {
-    backgroundColor: "#f5f5f5",
-    borderWidth: 1,
-    borderColor: "#e0e0e0",
+    backgroundColor: "#9F9F9F",
   },
   cancelButtonText: {
     fontSize: 16,
     fontWeight: "600",
-    color: "#666",
+    color: "#333",
   },
   saveButton: {
-    backgroundColor: "#4CAF50",
+    backgroundColor: "#676767",
   },
   saveButtonText: {
     fontSize: 16,
     fontWeight: "600",
-    color: "#fff",
+    color: "#dddd",
   },
 });
