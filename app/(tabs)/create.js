@@ -9,6 +9,7 @@ import {
   Alert,
   KeyboardAvoidingView,
   Platform,
+  Image
 } from "react-native";
 import { useAuth } from "../../contexts/AuthContext";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -90,16 +91,20 @@ export default function CreateEntryScreen() {
         showsVerticalScrollIndicator={false}
       >
         <View style={styles.header}>
-          <Text style={styles.headerTitle}>✍️ Nova Entrada</Text>
-          <Text style={styles.headerSubtitle}>
-            {new Date().toLocaleDateString("pt-BR", {
-              weekday: "long",
-              day: "numeric",
-              month: "long",
-              year: "numeric",
-            })}
-          </Text>
-        </View>
+        <Image
+          source={require("../../assets/images/logo.png")}
+          style={styles.logo}
+          resizeMode="contain"
+        />
+        <Text style={styles.greeting}>Olá, {user?.name?.split(" ")[0]}! 👋</Text>
+        <Text style={styles.date}>
+          {new Date().toLocaleDateString("pt-BR", {
+            weekday: "long",
+            day: "numeric",
+            month: "long",
+          })}
+        </Text>
+      </View>
 
         <View style={styles.form}>
           <View style={styles.inputGroup}>
@@ -192,19 +197,28 @@ const styles = StyleSheet.create({
   scrollContent: {
     paddingBottom: 40,
   },
+
   header: {
     backgroundColor: "#403E3E",
-    padding: 30,
-    paddingTop: Platform.OS === "ios" ? 60 : 40,
+    paddingTop: 60,
+    paddingBottom: 30,
+    paddingHorizontal: 20,
     alignItems: "center",
   },
-  headerTitle: {
+  logo: {
+    width: 100,
+    height: 100,
+    marginBottom: 15,
+    backgroundColor: "#D9D3CC",
+    borderRadius: 30,
+  },
+  greeting: {
     fontSize: 28,
     fontWeight: "bold",
     color: "#dddd",
     marginBottom: 5,
   },
-  headerSubtitle: {
+  date: {
     fontSize: 16,
     color: "#9F9F9F",
     textTransform: "capitalize",

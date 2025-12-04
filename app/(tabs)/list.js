@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from "react";
-import { 
-  View, 
-  Text, 
-  StyleSheet, 
-  ScrollView, 
-  ActivityIndicator, 
+import {
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  ActivityIndicator,
   RefreshControl,
   Platform,
   Image,
@@ -33,7 +33,7 @@ export default function ListScreen() {
   const loadDiaryEntries = async () => {
     try {
       setLoading(true);
-      
+
       if (user?.email) {
         const entries = await loadEntries(user.email);
         setDiaryEntries(entries);
@@ -82,7 +82,7 @@ export default function ListScreen() {
         loadDiaryEntries();
       }
     };
-    
+
     initializeDiary();
   }, [user]);
 
@@ -154,7 +154,7 @@ export default function ListScreen() {
           <Text style={styles.dateLabel}>Data:</Text>
           <Text style={styles.dateValue}>{formatDate(entry.date)}</Text>
         </View>
-        
+
         {entry.emotion && (
           <View style={styles.emotionField}>
             <Text style={styles.emotionValue}>{entry.emotion}</Text>
@@ -169,7 +169,7 @@ export default function ListScreen() {
         </View>
       )}
 
-      <ImageBackground 
+      <ImageBackground
         source={imagemDeFundo}
         style={styles.contentContainer}
         resizeMode="cover"
@@ -192,7 +192,7 @@ export default function ListScreen() {
 
   return (
     <View style={styles.container}>
-      <ScrollView 
+      <ScrollView
         style={styles.scrollView}
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={true}
@@ -201,19 +201,20 @@ export default function ListScreen() {
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
         }
       >
-        <View style={[styles.header, dynamicStyles.headerPadding]}>
-          <View style={styles.logoContainer}>
-            {/* Você pode substituir este View por uma Image quando tiver a logo salva */}
-            <View style={styles.logoPlaceholder}>
-            <Image 
-              source={require('../../assets/images/logo.png')} 
-              style={[styles.logo, dynamicStyles.logoSize]}
-            />
-           
-            </View>
-            
-          </View>
-          <Text style={styles.userName}>{user?.name}</Text>
+        <View style={styles.header}>
+          <Image
+            source={require("../../assets/images/logo.png")}
+            style={styles.logo}
+            resizeMode="contain"
+          />
+          <Text style={styles.greeting}>Olá, {user?.name?.split(" ")[0]}! 👋</Text>
+          <Text style={styles.date}>
+            {new Date().toLocaleDateString("pt-BR", {
+              weekday: "long",
+              day: "numeric",
+              month: "long",
+            })}
+          </Text>
         </View>
 
         <View style={[styles.entriesList, dynamicStyles.entriesContainer]}>
@@ -305,30 +306,31 @@ const styles = StyleSheet.create({
     color: "#9F9F9F",
     letterSpacing: 1,
   },
-  logo: {
-    // Dimensões são definidas dinamicamente
+  
+  header: {
+    backgroundColor: "#403E3E",
+    paddingTop: 60,
+    paddingBottom: 30,
+    paddingHorizontal: 20,
+    alignItems: "center",
   },
-  title: {
+  logo: {
+    width: 100,
+    height: 100,
+    marginBottom: 15,
+    backgroundColor: "#D9D3CC",
+    borderRadius: 30,
+  },
+  greeting: {
     fontSize: 28,
     fontWeight: "bold",
     color: "#dddd",
-    textAlign: "center",
     marginBottom: 5,
   },
-  subtitle: {
+  date: {
     fontSize: 16,
     color: "#9F9F9F",
-    textAlign: "center",
-    marginBottom: 10,
-  },
-  userName: {
-    fontSize: isTablet ? 22 : 18,
-    color: "#dddd",
-    fontWeight: "600",
-    textAlign: "center",
-  },
-  entriesList: {
-    // Padding é definido dinamicamente
+    textTransform: "capitalize",
   },
   diaryPage: {
     backgroundColor: "#676767",
